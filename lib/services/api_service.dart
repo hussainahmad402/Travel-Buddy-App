@@ -189,6 +189,7 @@ class ApiService {
       );
 
       final data = json.decode(response.body);
+      print("api response data : ${data}");
       return ApiResponse.fromJson(data, null);
     } catch (e) {
       return ApiResponse<void>(

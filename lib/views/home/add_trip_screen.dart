@@ -218,11 +218,11 @@ class _AddTripScreenState extends State<AddTripScreen> {
           const SnackBar(content: Text('Trip and documents created successfully!')),
         );
 
-        // Navigator.pushAndRemoveUntil(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => const TripListScreen()),
-        //   (Route<dynamic> route) => false,
-        // );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const TripListScreen()),
+          (Route<dynamic> route) => false,
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(tripController.errorMessage ?? 'Failed to create trip')),

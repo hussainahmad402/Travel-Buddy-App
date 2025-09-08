@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:travelbuddy/views/splash_screen.dart';
 import 'controllers/auth_controller.dart';
@@ -7,10 +8,17 @@ import 'controllers/profile_controller.dart';
 import 'controllers/document_controller.dart';
 import 'views/auth/welcome_screen.dart';
 import 'views/home/home_screen.dart';
- // 👈 import your splash screen
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // important for plugins like secure storage
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 🔹 Set global system UI style
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,          // transparent status bar
+    statusBarIconBrightness: Brightness.dark,    // dark icons for light background
+    statusBarBrightness: Brightness.light,       // iOS support
+  ));
+
   runApp(const TravelBuddyApp());
 }
 
@@ -39,6 +47,11 @@ class TravelBuddyApp extends StatelessWidget {
             elevation: 0,
             backgroundColor: Colors.transparent,
             foregroundColor: Colors.black87,
+            systemOverlayStyle: SystemUiOverlayStyle( // 👈 fixes per-AppBar
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+            ),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
@@ -61,7 +74,7 @@ class TravelBuddyApp extends StatelessWidget {
             filled: true,
           ),
         ),
-        home: const SplashScreen(), // 👈 show splash first
+        home: const SplashScreen(),
         routes: {
           '/welcome': (context) => const WelcomeScreen(),
           '/home': (context) => const HomeScreen(),
