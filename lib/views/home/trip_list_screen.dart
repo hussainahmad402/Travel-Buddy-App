@@ -1,0 +1,217 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:travelbuddy/views/home/add_trip_screen.dart';
+import '../../controllers/trip_controller.dart';
+import '../../controllers/auth_controller.dart';
+import '../../models/trip.dart';
+import '../../widgets/custom_widgets.dart';
+import '../../widgets/common_widgets.dart' as common;
+import 'trip_detail_screen.dart';
+
+class TripListScreen extends StatefulWidget {
+  const TripListScreen({super.key});
+
+  @override
+  State<TripListScreen> createState() => _TripListScreenState();
+}
+
+class _TripListScreenState extends State<TripListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadTrips();
+    });
+  }
+
+  Future<void> _loadTrips() async {
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final tripController = Provider.of<TripController>(context, listen: false);
+    print("authController.token: ${authController.token}");
+    
+    if (authController.token != null) {
+      await tripController.loadTrips(authController.token!);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('My Trips'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadTrips,
+          ),
+        ],
+      ),
+      body: Consumer<TripController>(
+        builder: (context, tripController, child) {
+          if (tripController.isLoading) {
+            return const common.LoadingWidget(message: 'Loading your trips...');
+          }
+
+          if (tripController.errorMessage != null) {
+            return common.ErrorWidget(
+              message: tripController.errorMessage!,
+              onRetry: _loadTrips,
+            );
+          }
+
+          if (tripController.trips.isEmpty) {
+            return common.EmptyStateWidget(
+              message: 'No trips yet!\nStart planning your next adventure.',
+              icon: Icons.travel_explore,
+              action: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTripScreen()));
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Create Your First Trip'),
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: _loadTrips,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: tripController.trips.length,
+              itemBuilder: (context, index) {
+                final trip = tripController.trips[index];
+                return TripCard(
+                  trip: trip,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TripDetailScreen(trip: trip),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class TripCard extends StatelessWidget {
+  final Trip trip;
+  final VoidCallback? onTap;
+
+  const TripCard({
+    super.key,
+    required this.trip,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final dateFormat = DateFormat('MMM dd, yyyy');
+    final isUpcoming = trip.startDate.isAfter(DateTime.now());
+    final isOngoing = trip.startDate.isBefore(DateTime.now()) && 
+                     trip.endDate.isAfter(DateTime.now());
+
+    return CustomCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  trip.title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isUpcoming 
+                      ? Colors.blue.withOpacity(0.1)
+                      : isOngoing 
+                          ? Colors.green.withOpacity(0.1)
+                          : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  isUpcoming 
+                      ? 'Upcoming'
+                      : isOngoing 
+                          ? 'Ongoing'
+                          : 'Completed',
+                  style: TextStyle(
+                    color: isUpcoming 
+                        ? Colors.blue
+                        : isOngoing 
+                            ? Colors.green
+                            : Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                Icons.location_on,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                trip.destination,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${dateFormat.format(trip.startDate)} - ${dateFormat.format(trip.endDate)}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+          if (trip.notes != null && trip.notes!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              trip.notes!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
