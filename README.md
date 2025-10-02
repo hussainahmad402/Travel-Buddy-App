@@ -130,7 +130,7 @@ dependencies:
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/hussainahmad402/Travel-Buddy-App.git>
    cd travelbuddy
    ```
 
