@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travelbuddy/constants/app_colors.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
@@ -49,32 +50,35 @@ class CustomTextField extends StatelessWidget {
         hintText: hint,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+
+        // ✅ Floating label color (changes to primary when focused)
+        floatingLabelStyle: TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+        ),
+
+        // ✅ Rounded corners with no border
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-          ),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryColor,
-            width: 2,
-          ),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-          ),
-        ),
+
         filled: true,
-        fillColor: enabled 
-            ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surface.withOpacity(0.5),
+        fillColor: AppColors.back_circle.withOpacity(0.1),
+
+        // ✅ Increased height by tweaking content padding
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18, // 👈 slightly increased from 14
+        ),
       ),
     );
   }
@@ -169,9 +173,7 @@ class CustomCard extends StatelessWidget {
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         color: backgroundColor,
         child: InkWell(
           onTap: onTap,

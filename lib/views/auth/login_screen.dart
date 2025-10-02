@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:travelbuddy/constants/app_colors.dart';
+import 'package:travelbuddy/routes/app_routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/custom_widgets.dart';
 import '../../widgets/common_widgets.dart';
@@ -30,9 +32,19 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0), // control spacing
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.back_circle.withOpacity(0.1),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
       ),
       body: Consumer<AuthController>(
         builder: (context, authController, child) {
@@ -49,18 +61,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Welcome Text
                   Text(
-                    'Welcome Back!',
+                    'Sign in now',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sign in to continue your journey',
+                    'Please sign in to continue our app',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                    ),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7),
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -68,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Email Field
                   CustomTextField(
                     label: 'Email',
-                    hint: 'Enter your email address',
+                    // hint: 'Enter your email address',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: const Icon(Icons.email_outlined),
@@ -76,7 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      if (!RegExp(
+                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      ).hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -87,13 +104,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Password Field
                   CustomTextField(
                     label: 'Password',
-                    hint: 'Enter your password',
+                    // hint: 'Enter your password',
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -111,12 +130,32 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+
+                  // Forgot Password (moved here)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const ForgotPasswordScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
                   // Login Button
                   CustomButton(
                     text: 'Login',
-                    icon: Icons.login,
+                    
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final success = await authController.login(
@@ -129,32 +168,24 @@ class _LoginScreenState extends State<LoginScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Login successful!')),
                           );
-                           Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => const HomeScreen()),
-                            );
-                          
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ),
+                          );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(authController.errorMessage ?? 'Login failed')),
+                            SnackBar(
+                              content: Text(
+                                authController.errorMessage ?? 'Login failed',
+                              ),
+                            ),
                           );
                         }
                       }
                     },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Forgot Password
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ForgotPasswordScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text('Forgot Password?'),
+                    backgroundColor: AppColors.primary, // ✅ Use primary color
                   ),
                   const SizedBox(height: 24),
 
@@ -165,9 +196,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Text("Don't have an account? "),
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                         Navigator.pushNamed(context, AppRoutes.signup);
                         },
-                        child: const Text('Register'),
+                        child: Text(
+                          'Signup',
+                          style: TextStyle(color: AppColors.primary),
+                        ),
                       ),
                     ],
                   ),

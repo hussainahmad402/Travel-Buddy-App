@@ -81,6 +81,8 @@ class ApiService {
         headers: ApiConfig.getHeaders(),
       );
 
+      print("login api response ${response.statusCode}");
+
       final data = json.decode(response.body);
       return AuthResponse.fromJson(data);
     } catch (e) {

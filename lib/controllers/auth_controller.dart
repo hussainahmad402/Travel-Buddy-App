@@ -5,7 +5,7 @@ import '../services/storage_service.dart';
 
 class AuthController extends ChangeNotifier {
   final ApiService _apiService = ApiService();
-  
+
   bool _isLoading = false;
   String? _errorMessage;
   User? _currentUser;
@@ -34,7 +34,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await _apiService.sendOtp(email);
       _setLoading(false);
-      
+
       if (response.status) {
         return true;
       } else {
@@ -55,7 +55,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await _apiService.verifyOtp(email, otp);
       _setLoading(false);
-      
+
       if (response.status) {
         return true;
       } else {
@@ -115,15 +115,15 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await _apiService.login(email, password);
       _setLoading(false);
-      
+
+      print("login response: ${response.status}");
+
       if (response.status) {
         if (response.token != null && response.user != null) {
           _token = response.token;
           _currentUser = response.user;
           await StorageService.saveToken(_token!);
           await StorageService.setLoggedIn(true);
-
-          
         }
         return true;
       } else {
@@ -145,7 +145,7 @@ class AuthController extends ChangeNotifier {
     try {
       final response = await _apiService.forgotPassword(email);
       _setLoading(false);
-      
+
       if (response.status) {
         return true;
       } else {
@@ -174,7 +174,7 @@ class AuthController extends ChangeNotifier {
         newPassword: newPassword,
       );
       _setLoading(false);
-      
+
       if (response.status) {
         return true;
       } else {
@@ -191,7 +191,7 @@ class AuthController extends ChangeNotifier {
   Future<void> loadStoredAuth() async {
     _token = await StorageService.getToken();
     final isLoggedIn = await StorageService.isLoggedIn();
-    
+
     if (_token != null && isLoggedIn) {
       // Load user profile
       final response = await _apiService.getUserProfile(_token!);
@@ -202,7 +202,7 @@ class AuthController extends ChangeNotifier {
         await logout();
       }
     }
-    
+
     notifyListeners();
   }
 
