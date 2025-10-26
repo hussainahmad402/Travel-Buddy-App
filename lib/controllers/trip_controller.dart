@@ -4,7 +4,7 @@ import '../services/api_service.dart';
 
 class TripController extends ChangeNotifier {
   final ApiService _apiService = ApiService();
-  
+
   bool _isLoading = false;
   String? _errorMessage;
   List<Trip> _trips = [];
@@ -26,7 +26,6 @@ class TripController extends ChangeNotifier {
   }
 
   Future<bool> createTrip({
-    
     required String token,
     required String title,
     required String destination,
@@ -47,8 +46,8 @@ class TripController extends ChangeNotifier {
         notes: notes,
       );
       _setLoading(false);
-        print("response data create trip ${response.data!.id}");
-      
+      print("response data create trip ${response.data!.id}");
+
       if (response.status && response.data != null) {
         _trips.add(response.data!);
         notifyListeners();
@@ -72,7 +71,7 @@ class TripController extends ChangeNotifier {
       final response = await _apiService.getTrips(token);
       print("response data 1: ${response}");
       _setLoading(false);
-      
+
       if (response.status && response.data != null) {
         _trips = response.data!;
         notifyListeners();
@@ -95,7 +94,7 @@ class TripController extends ChangeNotifier {
     try {
       final response = await _apiService.getTrip(token, tripId);
       _setLoading(false);
-      
+
       if (response.status && response.data != null) {
         _selectedTrip = response.data!;
         notifyListeners();
@@ -126,19 +125,19 @@ class TripController extends ChangeNotifier {
         notes: notes,
       );
       _setLoading(false);
-      
+
       if (response.status && response.data != null) {
         // Update the trip in the list
         final index = _trips.indexWhere((trip) => trip.id == tripId);
         if (index != -1) {
           _trips[index] = response.data!;
         }
-        
+
         // Update selected trip if it's the same
         if (_selectedTrip?.id == tripId) {
           _selectedTrip = response.data!;
         }
-        
+
         notifyListeners();
         return true;
       } else {
@@ -159,16 +158,16 @@ class TripController extends ChangeNotifier {
     try {
       final response = await _apiService.deleteTrip(token, tripId);
       _setLoading(false);
-      
+
       if (response.status) {
         // Remove trip from list
         _trips.removeWhere((trip) => trip.id == tripId);
-        
+
         // Clear selected trip if it's the same
         if (_selectedTrip?.id == tripId) {
           _selectedTrip = null;
         }
-        
+
         notifyListeners();
         return true;
       } else {
@@ -182,6 +181,49 @@ class TripController extends ChangeNotifier {
     }
   }
 
+  Future<bool> addFavourite(String token, int tripId) async {
+
+    _setError(null);
+    final response = await _apiService.addFavourite(token, tripId);
+    _setLoading(false);
+    return response.status;
+  }
+
+  Future<bool> removeFavourite(String token, int tripId) async {
+ 
+    _setError(null);
+    try {
+      final response = await _apiService.removeFavourite(token, tripId);
+      _setLoading(false);
+      return response.status;
+    } catch (e) {
+      _setLoading(false);
+      _setError('An unexpected error occurred');
+      return false;
+    }
+  }
+
+  Future<bool> loadFavourites(String token) async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      final response = await _apiService.getFavourites(token);
+      print("response data load favourites: ${response.data}");
+      _setLoading(false);
+      if (response.status && response.data != null) {
+        _trips = response.data!;
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message);
+        return false;
+      }
+    } catch (e) {
+      _setLoading(false);
+      _setError('An unexpected error occurred');
+      return false;
+    }
+  }
   void selectTrip(Trip trip) {
     _selectedTrip = trip;
     notifyListeners();

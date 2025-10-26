@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:travelbuddy/views/auth/otp_verification_screen.dart';
+import 'package:travelbuddy/constants/app_colors.dart';
+import 'package:travelbuddy/routes/app_routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/custom_widgets.dart';
 import '../../widgets/common_widgets.dart';
+import 'otp_verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -34,9 +36,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Account'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.back_circle.withOpacity(0.1),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
       ),
       body: Consumer<AuthController>(
         builder: (context, authController, child) {
@@ -51,30 +63,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Welcome Text
+                  // Title
                   Text(
-                    'Create Account',
+                    'SignUp Now',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Join Travel Buddy and start your journey',
+                    'Please fill the details and create account',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                    ),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.7),
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
 
-                  // Name Field
+                  // Name
                   CustomTextField(
                     label: 'Full Name',
-                    hint: 'Enter your full name',
                     controller: _nameController,
-                    prefixIcon: const Icon(Icons.person_outlined),
+                    prefixIcon: const Icon(Icons.person_outline),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your name';
@@ -87,10 +101,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Email Field
+                  // Email
                   CustomTextField(
                     label: 'Email',
-                    hint: 'Enter your email address',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: const Icon(Icons.email_outlined),
@@ -98,7 +111,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          .hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -106,16 +120,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Password Field
+                  // Password
                   CustomTextField(
                     label: 'Password',
-                    hint: 'Enter your password',
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    prefixIcon: const Icon(Icons.lock_outlined),
+                    prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                       ),
                       onPressed: () {
                         setState(() {
@@ -135,16 +150,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Confirm Password Field
+                  // Confirm Password
                   CustomTextField(
                     label: 'Confirm Password',
-                    hint: 'Confirm your password',
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
-                    prefixIcon: const Icon(Icons.lock_outlined),
+                    prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                        _obscureConfirmPassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                       ),
                       onPressed: () {
                         setState(() {
@@ -164,10 +180,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Register Button
+                  // Create Account Button
                   CustomButton(
-                    text: 'Create Account',
-                    icon: Icons.person_add,
+                    text: 'Sign Up',
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         final success = await authController.register(
@@ -180,7 +195,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                         if (success) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Account created successfully!')),
+                            const SnackBar(
+                                content:
+                                    Text('Account created successfully!')),
                           );
                           if (mounted) {
                             Navigator.pushReplacement(
@@ -194,15 +211,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(authController.errorMessage ?? 'Registration failed')),
+                            SnackBar(
+                              content: Text(
+                                authController.errorMessage ??
+                                    'Registration failed',
+                              ),
+                            ),
                           );
                         }
                       }
                     },
+                    backgroundColor: AppColors.primary,
                   ),
                   const SizedBox(height: 24),
 
-                  // Login Link
+                  // Already have account
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -211,7 +234,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: const Text('Login'),
+                        child: Text(
+                          'Login',
+                          style: TextStyle(color: AppColors.primary),
+                        ),
                       ),
                     ],
                   ),

@@ -32,19 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0), // control spacing
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.back_circle.withOpacity(0.1),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-        ),
+       
       ),
       body: Consumer<AuthController>(
         builder: (context, authController, child) {

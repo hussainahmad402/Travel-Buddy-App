@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:travelbuddy/views/home/favourite_screen.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/trip_controller.dart';
 import '../../widgets/common_widgets.dart';
@@ -22,9 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
-   WidgetsBinding.instance.addPostFrameCallback((_){
-     _loadInitialData();
-   });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialData();
+    });
   }
 
   @override
@@ -36,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadInitialData() async {
     final authController = Provider.of<AuthController>(context, listen: false);
     final tripController = Provider.of<TripController>(context, listen: false);
-    
+
     if (authController.token != null) {
       await tripController.loadTrips(authController.token!);
     }
@@ -64,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             children: const [
               TripListScreen(),
+              const FavouriteScreen(),
               ProfileScreen(),
             ],
           ),
@@ -85,6 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Trips',
               ),
               BottomNavigationBarItem(
+                icon: Icon(Icons.favorite),
+                label: 'Favourite',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.person),
                 label: 'Profile',
               ),
@@ -95,7 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AddTripScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const AddTripScreen(),
+                      ),
                     );
                   },
                   child: const Icon(Icons.add),

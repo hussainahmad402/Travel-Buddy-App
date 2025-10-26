@@ -8,7 +8,7 @@ class Trip {
   final int userId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-
+  bool? isFavourite;
   Trip({
     required this.id,
     required this.title,
@@ -19,25 +19,27 @@ class Trip {
     required this.userId,
     this.createdAt,
     this.updatedAt,
+    required this.isFavourite,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
-    return Trip(
-      id: json['id'] ?? 0,
-      title: json['title'] ?? '',
-      destination: json['destination'] ?? '',
-      startDate: DateTime.parse(json['start_date']),
-      endDate: DateTime.parse(json['end_date']),
-      notes: json['notes'],
-      userId: json['user_id'] ?? 0,
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
-          : null,
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at']) 
-          : null,
-    );
-  }
+  return Trip(
+    id: json['id'] ?? 0,
+    title: json['title'] ?? '',
+    destination: json['destination'] ?? '',
+    startDate: DateTime.parse(json['start_date']),
+    endDate: DateTime.parse(json['end_date']),
+    notes: json['notes'],
+    userId: json['user_id'] ?? 0,
+    createdAt: json['created_at'] != null 
+        ? DateTime.parse(json['created_at']) 
+        : null,
+    updatedAt: json['updated_at'] != null 
+        ? DateTime.parse(json['updated_at']) 
+        : null,
+    isFavourite: (json['is_favourite'] ?? json['favourite'] ?? 0) == 1,
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {
@@ -50,6 +52,7 @@ class Trip {
       'user_id': userId,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
+      'is_favourite': isFavourite,
     };
   }
 
@@ -63,6 +66,7 @@ class Trip {
     int? userId,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isFavourite,
   }) {
     return Trip(
       id: id ?? this.id,
@@ -74,6 +78,7 @@ class Trip {
       userId: userId ?? this.userId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isFavourite: isFavourite ?? this.isFavourite,
     );
   }
 }

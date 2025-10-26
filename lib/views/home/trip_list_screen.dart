@@ -29,7 +29,7 @@ class _TripListScreenState extends State<TripListScreen> {
     final authController = Provider.of<AuthController>(context, listen: false);
     final tripController = Provider.of<TripController>(context, listen: false);
     print("authController.token: ${authController.token}");
-    
+
     if (authController.token != null) {
       await tripController.loadTrips(authController.token!);
     }
@@ -37,18 +37,17 @@ class _TripListScreenState extends State<TripListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+      child: Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         automaticallyImplyLeading: false,
         title: const Text('My Trips'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadTrips,
-          ),
-        ],
+        // actions: [
+        //   IconButton(icon: const Icon(Icons.refresh), onPressed: _loadTrips),
+        // ],
       ),
       body: Consumer<TripController>(
         builder: (context, tripController, child) {
@@ -69,7 +68,12 @@ class _TripListScreenState extends State<TripListScreen> {
               icon: Icons.travel_explore,
               action: ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTripScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddTripScreen(),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Create Your First Trip'),
@@ -84,6 +88,7 @@ class _TripListScreenState extends State<TripListScreen> {
               itemCount: tripController.trips.length,
               itemBuilder: (context, index) {
                 final trip = tripController.trips[index];
+                final isFavourite = false;
                 return TripCard(
                   trip: trip,
                   onTap: () {
@@ -100,7 +105,7 @@ class _TripListScreenState extends State<TripListScreen> {
           );
         },
       ),
-    );
+    ));
   }
 }
 
@@ -108,18 +113,15 @@ class TripCard extends StatelessWidget {
   final Trip trip;
   final VoidCallback? onTap;
 
-  const TripCard({
-    super.key,
-    required this.trip,
-    this.onTap,
-  });
+  const TripCard({super.key, required this.trip, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM dd, yyyy');
     final isUpcoming = trip.startDate.isAfter(DateTime.now());
-    final isOngoing = trip.startDate.isBefore(DateTime.now()) && 
-                     trip.endDate.isAfter(DateTime.now());
+    final isOngoing =
+        trip.startDate.isBefore(DateTime.now()) &&
+        trip.endDate.isAfter(DateTime.now());
 
     return CustomCard(
       onTap: onTap,
@@ -131,33 +133,33 @@ class TripCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   trip.title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isUpcoming 
+                  color: isUpcoming
                       ? Colors.blue.withOpacity(0.1)
-                      : isOngoing 
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.grey.withOpacity(0.1),
+                      : isOngoing
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  isUpcoming 
+                  isUpcoming
                       ? 'Upcoming'
-                      : isOngoing 
-                          ? 'Ongoing'
-                          : 'Completed',
+                      : isOngoing
+                      ? 'Ongoing'
+                      : 'Completed',
                   style: TextStyle(
-                    color: isUpcoming 
+                    color: isUpcoming
                         ? Colors.blue
-                        : isOngoing 
-                            ? Colors.green
-                            : Colors.grey,
+                        : isOngoing
+                        ? Colors.green
+                        : Colors.grey,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -177,7 +179,9 @@ class TripCard extends StatelessWidget {
               Text(
                 trip.destination,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             ],
@@ -194,7 +198,57 @@ class TripCard extends StatelessWidget {
               Text(
                 '${dateFormat.format(trip.startDate)} - ${dateFormat.format(trip.endDate)}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+              Spacer(),
+              IconButton(
+                onPressed: () async {
+                  final authController = Provider.of<AuthController>(
+                    context,
+                    listen: false,
+                  );
+                  final tripController = Provider.of<TripController>(
+                    context,
+                    listen: false,
+                  );
+
+                  if (authController.token != null && trip.id != null) {
+                    // If trip is already favourite → remove it
+                    if (trip.isFavourite == true) {
+                      final removed = await tripController.removeFavourite(
+                        authController.token!,
+                        trip.id,
+                      );
+                      if (removed) {
+                        trip.isFavourite = false;
+                       
+                      }
+                    }
+                    // If trip is not favourite → add it
+                    else {
+                      final added = await tripController.addFavourite(
+                        authController.token!,
+                        trip.id,
+                      );
+                      if (added) {
+                        trip.isFavourite = true;
+                        
+                      }
+                    }
+                  }
+                },
+                icon: Icon(
+                  trip.isFavourite ?? false
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: trip.isFavourite ?? false
+                      ? Colors.red
+                      : Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ],

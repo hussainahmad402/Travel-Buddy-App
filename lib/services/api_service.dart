@@ -333,52 +333,51 @@ class ApiService {
   }
 
   Future<ApiResponse<Document>> uploadDocument({
-  required String token,
-  required int tripId,
-  required File file,
-}) async {
-  try {
-    print("fileeeeee $token");
-    print("fileeeeee $tripId");
-    print("fileeeeee ${file.path}");
+    required String token,
+    required int tripId,
+    required File file,
+  }) async {
+    try {
+      print("fileeeeee $token");
+      print("fileeeeee $tripId");
+      print("fileeeeee ${file.path}");
 
-    final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents(tripId)}');
+      final uri = Uri.parse(
+        '${ApiConfig.baseUrl}${ApiConfig.documents(tripId)}',
+      );
 
-    final response = await http.post(
-      uri,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        "file": file.path, // ✅ only save path
-        // "file_name": file.path.split('/').last,
-      }),
-    );
+      final response = await http.post(
+        uri,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "file": file.path, // ✅ only save path
+          // "file_name": file.path.split('/').last,
+        }),
+      );
 
-    print('Save Path Status: ${response.statusCode}');
-    print('Save Path Response: ${response.body}');
+      print('Save Path Status: ${response.statusCode}');
+      print('Save Path Response: ${response.body}');
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = json.decode(response.body);
-      return ApiResponse.fromJson(data, (json) => Document.fromJson(json));
-    } else {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = json.decode(response.body);
+        return ApiResponse.fromJson(data, (json) => Document.fromJson(json));
+      } else {
+        return ApiResponse<Document>(
+          status: false,
+          message: 'Failed: ${response.body}',
+        );
+      }
+    } catch (e) {
       return ApiResponse<Document>(
         status: false,
-        message: 'Failed: ${response.body}',
+        message: 'Network error: ${e.toString()}',
       );
     }
-  } catch (e) {
-    return ApiResponse<Document>(
-      status: false,
-      message: 'Network error: ${e.toString()}',
-    );
   }
-}
-
-
-
 
   Future<ApiResponse<List<Document>>> getDocuments(
     String token,
@@ -407,6 +406,76 @@ class ApiService {
       );
     } catch (e) {
       return ApiResponse<List<Document>>(
+        status: false,
+        message: 'Network error: ${e.toString()}',
+      );
+    }
+  }
+
+  Future<ApiResponse<List<Trip>>> getFavourites(String token) async {
+    try {
+      print("favourites api request: $token");
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.favouriteTrips}'),
+        headers: ApiConfig.getHeaders(token: token),
+      );
+      final data = json.decode(response.body);
+      print("favourites api response   sdfa: ${data['data']}");
+      if (data['data'] is List) {
+        final trips = (data['data'] as List)
+            .map((json) => Trip.fromJson(json))
+            .toList();
+        print("favourites api response trips: $trips");
+        return ApiResponse<List<Trip>>(
+          status: data['status'] ?? false,
+          message: data['message'] ?? '',
+          data: trips,
+        );
+      }
+      return ApiResponse<List<Trip>>(
+        status: false,
+        message: 'Invalid response format',
+      );
+    } catch (e) {
+      return ApiResponse<List<Trip>>(
+        status: false,
+        message: 'Network error: ${e.toString()}',
+      );
+    }
+  }
+
+  Future<ApiResponse<void>> addFavourite(String token, int tripId) async {
+    try {
+      print("add favourite api request: $token $tripId");
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.trips}/$tripId/favourite'),
+        headers: ApiConfig.getHeaders(token: token),
+        body: jsonEncode({'trip_id': tripId}),
+      );
+      final data = json.decode(response.body);
+      print("add favourite api response: $data");
+      return ApiResponse.fromJson(data, null);
+    } catch (e) {
+      return ApiResponse<void>(
+        status: false,
+        message: 'Network error: ${e.toString()}',
+      );
+    }
+  }
+
+  Future<ApiResponse<void>> removeFavourite(String token, int tripId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse(
+          '${ApiConfig.baseUrl}${ApiConfig.trips}/$tripId/favourite',
+        ),
+        headers: ApiConfig.getHeaders(token: token),
+      );
+      final data = json.decode(response.body);
+      print("remove favourite api response: $data");
+      return ApiResponse.fromJson(data, null);
+    } catch (e) {
+      return ApiResponse<void>(
         status: false,
         message: 'Network error: ${e.toString()}',
       );
