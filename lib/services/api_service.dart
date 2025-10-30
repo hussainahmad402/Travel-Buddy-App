@@ -354,8 +354,9 @@ class ApiService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "file": file.path, // ✅ only save path
-          // "file_name": file.path.split('/').last,
+          "file_path": file.path, // ✅ only save path
+          "file_name": file.path.split('/').last,
+          "file_type": file.path.split('.').last,
         }),
       );
 
@@ -379,38 +380,44 @@ class ApiService {
     }
   }
 
-  Future<ApiResponse<List<Document>>> getDocuments(
-    String token,
-    int tripId,
-  ) async {
-    try {
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents(tripId)}'),
-        headers: ApiConfig.getHeaders(token: token),
-      );
+ Future<ApiResponse<List<Document>>> getDocuments(
+  String token,
+  int tripId,
+) async {
+  try {
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents(tripId)}'),
+      headers: ApiConfig.getHeaders(token: token),
+    );
 
-      final data = json.decode(response.body);
-      if (data['data'] is List) {
-        final documents = (data['data'] as List)
-            .map((json) => Document.fromJson(json))
-            .toList();
-        return ApiResponse<List<Document>>(
-          status: data['status'] ?? false,
-          message: data['message'] ?? '',
-          data: documents,
-        );
-      }
+    print("get document api response ${response.body}");
+
+    final data = json.decode(response.body);
+
+    if (data['documents'] is List) {
+      final documents = (data['documents'] as List)
+          .map((json) => Document.fromJson(json))
+          .toList();
+
       return ApiResponse<List<Document>>(
-        status: false,
-        message: 'Invalid response format',
-      );
-    } catch (e) {
-      return ApiResponse<List<Document>>(
-        status: false,
-        message: 'Network error: ${e.toString()}',
+        status: data['status'] ?? false,
+        message: data['message'] ?? '',
+        data: documents,
       );
     }
+
+    return ApiResponse<List<Document>>(
+      status: false,
+      message: 'Invalid response format',
+    );
+  } catch (e) {
+    return ApiResponse<List<Document>>(
+      status: false,
+      message: 'Network error: ${e.toString()}',
+    );
   }
+}
+
 
   Future<ApiResponse<List<Trip>>> getFavourites(String token) async {
     try {

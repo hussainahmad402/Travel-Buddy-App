@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:travelbuddy/constants/app_colors.dart';
 
 class LoadingWidget extends StatelessWidget {
   final String? message;
   final double size;
 
-  const LoadingWidget({
-    super.key,
-    this.message,
-    this.size = 50.0,
-  });
+  const LoadingWidget({super.key, this.message, this.size = 50.0});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +14,7 @@ class LoadingWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SpinKitFadingCircle(
-            color: Theme.of(context).primaryColor,
-            size: size,
-          ),
+          SpinKitFadingCircle(color: AppColors.primary, size: size),
           if (message != null) ...[
             const SizedBox(height: 16),
             Text(
@@ -39,11 +33,7 @@ class ErrorWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
 
-  const ErrorWidget({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const ErrorWidget({super.key, required this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -66,10 +56,7 @@ class ErrorWidget extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: onRetry,
-                child: const Text('Retry'),
-              ),
+              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
             ],
           ],
         ),
@@ -111,14 +98,10 @@ class EmptyStateWidget extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            if (action != null) ...[
-              const SizedBox(height: 16),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: 16), action!],
           ],
         ),
       ),
     );
   }
 }
-

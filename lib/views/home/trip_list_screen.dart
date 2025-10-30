@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:travelbuddy/constants/app_colors.dart';
 import 'package:travelbuddy/views/home/add_trip_screen.dart';
 import '../../controllers/trip_controller.dart';
 import '../../controllers/auth_controller.dart';
@@ -82,6 +83,7 @@ class _TripListScreenState extends State<TripListScreen> {
           }
 
           return RefreshIndicator(
+            color: AppColors.primary,
             onRefresh: _loadTrips,
             child: ListView.builder(
               padding: const EdgeInsets.all(16),

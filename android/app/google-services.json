@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "417673537468",
+    "project_id": "push-notification-45b01",
+    "storage_bucket": "push-notification-45b01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:417673537468:android:d4eca88175a4fa2881edb9",
+        "android_client_info": {
+          "package_name": "com.example.travelbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIBQ-S04k1LHmNXnE-lgjwQpEsUx9QXJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

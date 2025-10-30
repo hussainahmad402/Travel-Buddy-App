@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String baseUrl = 'http://192.168.0.109:8000/api';
+  static const String baseUrl = 'http://192.168.0.128:8000/api';
 
   // Authentication endpoints
   static const String sendOtp = '/send-otp';

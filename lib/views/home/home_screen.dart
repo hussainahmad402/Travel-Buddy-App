@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:travelbuddy/constants/app_colors.dart';
+import 'package:travelbuddy/views/home/chat_list_screen.dart';
 import 'package:travelbuddy/views/home/favourite_screen.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/trip_controller.dart';
@@ -66,10 +68,21 @@ class _HomeScreenState extends State<HomeScreen> {
             children: const [
               TripListScreen(),
               const FavouriteScreen(),
+              const ChatListScreen(),
               ProfileScreen(),
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
+            selectedItemColor: AppColors.primary,
+            unselectedItemColor: Colors.grey,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            type: BottomNavigationBarType.fixed,
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
             currentIndex: _currentIndex,
             onTap: (index) {
               setState(() {
@@ -90,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icon(Icons.favorite),
                 label: 'Favourite',
               ),
+              BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),
                 label: 'Profile',
@@ -98,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           floatingActionButton: _currentIndex == 0
               ? FloatingActionButton(
+                  backgroundColor: AppColors.primary.withOpacity(0.8),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -106,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  child: const Icon(Icons.add),
+                  child: const Icon(Icons.add, color: Colors.white),
                 )
               : null,
         );
