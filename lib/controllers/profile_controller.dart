@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
@@ -48,17 +50,22 @@ class ProfileController extends ChangeNotifier {
 
   Future<bool> updateUserProfile({
     required String token,
-    String? name,
+    String? firstName,
+    String? lastName,
+    File? profilePicture,
     String? phone,
     String? address,
   }) async {
     _setLoading(true);
     _setError(null);
+    print('Updating profile with firstName: $firstName, lastName: $lastName, phone: $phone, address: $address');
 
     try {
       final response = await _apiService.updateUserProfile(
         token: token,
-        name: name,
+        firstName: firstName,
+        lastName: lastName,
+        profilePicture: profilePicture,
         phone: phone,
         address: address,
       );

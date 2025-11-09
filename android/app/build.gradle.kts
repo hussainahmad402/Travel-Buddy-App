@@ -24,7 +24,7 @@ android {
     defaultConfig {
         applicationId = "com.example.travelbuddy"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 33
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travelbuddy/constants/app_colors.dart';
 import 'package:travelbuddy/views/home/chat_list_screen.dart';
+import 'package:travelbuddy/views/home/discover_trips.dart';
 import 'package:travelbuddy/views/home/favourite_screen.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/trip_controller.dart';
@@ -67,8 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             children: const [
               TripListScreen(),
-              const FavouriteScreen(),
-              const ChatListScreen(),
+              DiscoverTrip(),
+              // const FavouriteScreen(),
+              ChatListScreen(),
               ProfileScreen(),
             ],
           ),
@@ -101,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.favorite),
-                label: 'Favourite',
+                label: 'Discover',
               ),
               BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
               BottomNavigationBarItem(

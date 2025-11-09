@@ -40,10 +40,13 @@ class TravelBuddyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DocumentController()),
         ChangeNotifierProvider(create: (_) => ChatController()),
       ],
-      child: MaterialApp(
-        initialRoute: AppRoutes.splash,
-        routes: AppRoutes.routes,
-        debugShowCheckedModeBanner: false,
+      child: SafeArea(
+        top: false,
+        child: MaterialApp(
+          initialRoute: AppRoutes.splash,
+          routes: AppRoutes.routes,
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }

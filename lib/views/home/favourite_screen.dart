@@ -30,38 +30,37 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
 
   @override
   Widget build(BuildContext context) {
-   return SafeArea(
-     child: Scaffold(
-       appBar: AppBar(
-        centerTitle: true,
-          title: const Text("Favourite Trips"),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-       
-        ),
+   return Scaffold(
+    backgroundColor: Colors.white,
+     appBar: AppBar(
+      centerTitle: true,
+        title: const Text("Favourite Trips"),
+        backgroundColor: Colors.white,
+        elevation: 0,
      
-      body: Consumer<TripController>(
-        builder: (context, tripController, child) {
-          final favouriteTrips =
-              tripController.trips.where((t) => t.isFavourite == true).toList();
-     
-          if (tripController.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-     
-          if (favouriteTrips.isEmpty) {
-            return const Center(child: Text("No favourite trips found."));
-          }
-     
-          return ListView.builder(
-            itemCount: favouriteTrips.length,
-            itemBuilder: (context, index) {
-              final trip = favouriteTrips[index];
-              return TripCard(trip: trip);
-            },
-          );
-        },
-      )),
-   );
+      ),
+   
+    body: Consumer<TripController>(
+      builder: (context, tripController, child) {
+        final favouriteTrips =
+            tripController.trips.where((t) => t.isFavourite == true).toList();
+   
+        if (tripController.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+   
+        if (favouriteTrips.isEmpty) {
+          return const Center(child: Text("No favourite trips found."));
+        }
+   
+        return ListView.builder(
+          itemCount: favouriteTrips.length,
+          itemBuilder: (context, index) {
+            final trip = favouriteTrips[index];
+            return TripCard(trip: trip);
+          },
+        );
+      },
+    ));
   }
 }

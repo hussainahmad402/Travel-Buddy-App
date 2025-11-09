@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String baseUrl = 'http://192.168.0.128:8000/api';
+  static const String baseUrl = 'http://192.168.1.107:8000/api';
 
   // Authentication endpoints
   static const String sendOtp = '/send-otp';
@@ -24,7 +24,7 @@ class ApiConfig {
   static const String favouriteTrips = '/trips/getfavourites';
 
   // Headers
-  static Map<String, String> getHeaders({String? token}) {
+  static Map<String, String> getHeaders({String? token , bool ContentType = false}) {
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',

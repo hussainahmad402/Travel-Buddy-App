@@ -142,36 +142,7 @@ class ApiService {
         headers: ApiConfig.getHeaders(token: token),
       );
 
-      final data = json.decode(response.body);
-      return ApiResponse.fromJson(data, (json) => User.fromJson(json));
-    } catch (e) {
-      return ApiResponse<User>(
-        status: false,
-        message: 'Network error: ${e.toString()}',
-      );
-    }
-  }
-
-  Future<ApiResponse<User>> updateUserProfile({
-    required String token,
-    String? name,
-    String? phone,
-    String? address,
-  }) async {
-    try {
-      final queryParams = <String, String>{};
-      if (name != null) queryParams['name'] = name;
-      if (phone != null) queryParams['phone'] = phone;
-      if (address != null) queryParams['address'] = address;
-
-      final uri = Uri.parse(
-        '${ApiConfig.baseUrl}${ApiConfig.profile}',
-      ).replace(queryParameters: queryParams);
-
-      final response = await http.put(
-        uri,
-        headers: ApiConfig.getHeaders(token: token),
-      );
+      print("get profile api response ${response.body}");
 
       final data = json.decode(response.body);
       return ApiResponse.fromJson(data, (json) => User.fromJson(json));
@@ -182,6 +153,52 @@ class ApiService {
       );
     }
   }
+Future<ApiResponse<User>> updateUserProfile({
+  required String token,
+  String? firstName,
+  String? lastName,
+  File? profilePicture,
+  String? phone,
+  String? address,
+}) async {
+  try {
+    final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.profile}');
+    final request = http.MultipartRequest('POST', uri);          // send as POST
+    request.headers.addAll(ApiConfig.getHeaders(
+      token: token,
+      ContentType: true,   // make sure we don’t force application/json
+    ));
+    request.fields['_method'] = 'PUT';                           // spoof PUT for Laravel
+
+    if (firstName != null) request.fields['first_name'] = firstName;
+    if (lastName != null) request.fields['last_name'] = lastName;
+    if (phone != null) request.fields['phone'] = phone;
+    if (address != null) request.fields['address'] = address;
+
+    if (profilePicture != null) {
+      final file = await http.MultipartFile.fromPath(
+        'profile_picture',
+        profilePicture.path,
+      );
+      request.files.add(file);
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    final data = json.decode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return ApiResponse.fromJson(data, (json) => User.fromJson(json));
+    } else {
+      return ApiResponse(
+        status: false,
+        message: 'Failed to update profile: ${data['message'] ?? response.body}',
+      );
+    }
+  } catch (e) {
+    return ApiResponse(status: false, message: 'Network error: ${e.toString()}');
+  }
+}
 
   Future<ApiResponse<void>> deleteUserProfile(String token) async {
     try {

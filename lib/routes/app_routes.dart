@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:travelbuddy/views/auth/login_screen.dart';
 import 'package:travelbuddy/views/auth/register_screen.dart';
+import 'package:travelbuddy/views/home/favourite_screen.dart';
 import 'package:travelbuddy/views/home/onboarding/onboarding.dart';
+import 'package:travelbuddy/views/home/profile_screen.dart';
 import 'package:travelbuddy/views/splash_screen.dart';
 import 'package:travelbuddy/views/auth/welcome_screen.dart';
 import 'package:travelbuddy/views/home/home_screen.dart';
@@ -14,7 +16,9 @@ class AppRoutes {
   static const String home = '/home';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
+  static const String favourites = '/favourites';
   static const String signup = '/signup';
+  static const String profile = '/profile';
 
 
 
@@ -25,6 +29,8 @@ class AppRoutes {
     home: (context) => const HomeScreen(),
     onboarding: (context) => const OnboardingScreen(),
     login: (context) => const LoginScreen(),
+    favourites: (context) => const FavouriteScreen(),
     signup: (context) => const RegisterScreen(),
+    profile: (context) => const ProfileScreen(),
   };
 }
