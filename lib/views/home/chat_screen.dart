@@ -180,3 +180,4 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+// End of chat_screen.dart
