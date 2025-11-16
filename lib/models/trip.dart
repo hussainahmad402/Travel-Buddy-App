@@ -1,3 +1,5 @@
+import 'package:travelbuddy/models/document.dart';
+
 class Trip {
   final int id;
   final String title;
@@ -9,6 +11,8 @@ class Trip {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   bool? isFavourite;
+  final List<Document>? documents; // ✅ Added
+
   Trip({
     required this.id,
     required this.title,
@@ -20,26 +24,26 @@ class Trip {
     this.createdAt,
     this.updatedAt,
     required this.isFavourite,
+    this.documents,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
-  return Trip(
-    id: json['id'] ?? 0,
-    title: json['title'] ?? '',
-    destination: json['destination'] ?? '',
-    startDate: DateTime.parse(json['start_date']),
-    endDate: DateTime.parse(json['end_date']),
-    notes: json['notes'],
-    userId: json['user_id'] ?? 0,
-    createdAt: json['created_at'] != null 
-        ? DateTime.parse(json['created_at']) 
-        : null,
-    updatedAt: json['updated_at'] != null 
-        ? DateTime.parse(json['updated_at']) 
-        : null,
-    isFavourite: (json['is_favourite'] ?? json['favourite'] ?? 0) == 1,
-  );
-}
+    return Trip(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
+      destination: json['destination'] ?? '',
+      startDate: DateTime.parse(json['start_date']),
+      endDate: DateTime.parse(json['end_date']),
+      notes: json['notes'],
+      userId: json['user_id'] ?? 0,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      isFavourite: (json['is_favourite'] ?? json['favourite'] ?? 0) == 1,
+      documents: json['documents'] != null
+          ? List<Document>.from(json['documents'].map((x) => Document.fromJson(x)))
+          : [],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -53,6 +57,7 @@ class Trip {
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
       'is_favourite': isFavourite,
+      'documents': documents?.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -67,6 +72,7 @@ class Trip {
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isFavourite,
+    List<Document>? documents,
   }) {
     return Trip(
       id: id ?? this.id,
@@ -79,7 +85,7 @@ class Trip {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isFavourite: isFavourite ?? this.isFavourite,
+      documents: documents ?? this.documents,
     );
   }
 }
-

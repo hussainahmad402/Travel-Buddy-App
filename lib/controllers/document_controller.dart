@@ -7,7 +7,7 @@ import '../services/api_service.dart';
 
 class DocumentController extends ChangeNotifier {
   final ApiService _apiService = ApiService();
-  
+
   bool _isLoading = false;
   String? _errorMessage;
   List<Document> _documents = [];
@@ -35,19 +35,24 @@ class DocumentController extends ChangeNotifier {
   _setError(null);
 
   try {
+    // Call the updated API service method that sends the file
     final response = await _apiService.uploadDocument(
       token: token,
       tripId: tripId,
       file: file,
     );
-    print("document upload api work $response");
+
+    print("Document upload API response: $response");
+
     _setLoading(false);
 
     if (response.status && response.data != null) {
+      // Add the newly uploaded document to the list
       _documents.add(response.data!);
       notifyListeners();
       return true;
     } else {
+      // If backend returns error
       _setError(response.message ?? 'Upload failed');
       return false;
     }
@@ -58,7 +63,6 @@ class DocumentController extends ChangeNotifier {
   }
 }
 
-
   Future<bool> loadDocuments(String token, int tripId) async {
     _setLoading(true);
     _setError(null);
@@ -67,7 +71,7 @@ class DocumentController extends ChangeNotifier {
       final response = await _apiService.getDocuments(token, tripId);
       print(" load document load ${response.data}");
       _setLoading(false);
-      
+
       if (response.status && response.data != null) {
         _documents = response.data!;
         notifyListeners();

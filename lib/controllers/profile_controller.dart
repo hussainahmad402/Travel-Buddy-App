@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart'; // Added this import
 import '../models/user.dart';
 import '../services/api_service.dart';
 
 class ProfileController extends ChangeNotifier {
   final ApiService _apiService = ApiService();
-  
+  final ImagePicker _picker = ImagePicker(); // Added image picker instance
+
   bool _isLoading = false;
   String? _errorMessage;
   User? _userProfile;
@@ -25,6 +27,22 @@ class ProfileController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- NEW METHOD ---
+  /// Handles the logic of picking an image from the gallery.
+  /// Returns a File object or null if no image is selected.
+  /// Throws an exception if picking fails, which the UI can catch.
+  Future<File?> pickImageFromGallery() async {
+    print("Controller picking image...");
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile != null) {
+      return File(pickedFile.path);
+    }
+    return null;
+  }
+
   Future<bool> loadUserProfile(String token) async {
     _setLoading(true);
     _setError(null);
@@ -32,7 +50,7 @@ class ProfileController extends ChangeNotifier {
     try {
       final response = await _apiService.getUserProfile(token);
       _setLoading(false);
-      
+
       if (response.status && response.data != null) {
         _userProfile = response.data!;
         notifyListeners();
@@ -58,7 +76,8 @@ class ProfileController extends ChangeNotifier {
   }) async {
     _setLoading(true);
     _setError(null);
-    print('Updating profile with firstName: $firstName, lastName: $lastName, phone: $phone, address: $address');
+    print(
+        'Updating profile with firstName: $firstName, lastName: $lastName, phone: $phone, address: $address');
 
     try {
       final response = await _apiService.updateUserProfile(
@@ -70,7 +89,7 @@ class ProfileController extends ChangeNotifier {
         address: address,
       );
       _setLoading(false);
-      
+
       if (response.status && response.data != null) {
         _userProfile = response.data!;
         notifyListeners();
@@ -93,7 +112,7 @@ class ProfileController extends ChangeNotifier {
     try {
       final response = await _apiService.deleteUserProfile(token);
       _setLoading(false);
-      
+
       if (response.status) {
         _userProfile = null;
         notifyListeners();

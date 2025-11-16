@@ -109,47 +109,56 @@ class TripController extends ChangeNotifier {
       return false;
     }
   }
+Future<bool> updateTrip({
+  required String token,
+  required int tripId,
+  required String title,
+  required String destination,
+  required DateTime startDate,
+  required DateTime endDate,
+  String? notes,
+}) async {
+  _setLoading(true);
+  _setError(null);
 
-  Future<bool> updateTrip({
-    required String token,
-    required int tripId,
-    String? notes,
-  }) async {
-    _setLoading(true);
-    _setError(null);
+  try {
+    final response = await _apiService.updateTrip(
+      token: token,
+      tripId: tripId,
+      title: title,
+      destination: destination,
+      startDate: startDate.toIso8601String(),
+      endDate: endDate.toIso8601String(),
+      notes: notes,
+    );
 
-    try {
-      final response = await _apiService.updateTrip(
-        token: token,
-        tripId: tripId,
-        notes: notes,
-      );
-      _setLoading(false);
+    _setLoading(false);
 
-      if (response.status && response.data != null) {
-        // Update the trip in the list
-        final index = _trips.indexWhere((trip) => trip.id == tripId);
-        if (index != -1) {
-          _trips[index] = response.data!;
-        }
-
-        // Update selected trip if it's the same
-        if (_selectedTrip?.id == tripId) {
-          _selectedTrip = response.data!;
-        }
-
-        notifyListeners();
-        return true;
-      } else {
-        _setError(response.message);
-        return false;
+    if (response.status && response.data != null) {
+      // Update item in local trips list
+      final index = _trips.indexWhere((trip) => trip.id == tripId);
+      if (index != -1) {
+        _trips[index] = response.data!;
       }
-    } catch (e) {
-      _setLoading(false);
-      _setError('An unexpected error occurred');
+
+      // Update selected trip too
+      if (_selectedTrip?.id == tripId) {
+        _selectedTrip = response.data!;
+      }
+
+      notifyListeners();
+      return true;
+    } else {
+      _setError(response.message);
       return false;
     }
+  } catch (e) {
+    _setLoading(false);
+    _setError('An unexpected error occurred');
+    return false;
   }
+}
+
 
   Future<bool> deleteTrip(String token, int tripId) async {
     _setLoading(true);

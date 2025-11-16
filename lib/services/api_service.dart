@@ -153,52 +153,59 @@ class ApiService {
       );
     }
   }
-Future<ApiResponse<User>> updateUserProfile({
-  required String token,
-  String? firstName,
-  String? lastName,
-  File? profilePicture,
-  String? phone,
-  String? address,
-}) async {
-  try {
-    final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.profile}');
-    final request = http.MultipartRequest('POST', uri);          // send as POST
-    request.headers.addAll(ApiConfig.getHeaders(
-      token: token,
-      ContentType: true,   // make sure we don’t force application/json
-    ));
-    request.fields['_method'] = 'PUT';                           // spoof PUT for Laravel
 
-    if (firstName != null) request.fields['first_name'] = firstName;
-    if (lastName != null) request.fields['last_name'] = lastName;
-    if (phone != null) request.fields['phone'] = phone;
-    if (address != null) request.fields['address'] = address;
-
-    if (profilePicture != null) {
-      final file = await http.MultipartFile.fromPath(
-        'profile_picture',
-        profilePicture.path,
+  Future<ApiResponse<User>> updateUserProfile({
+    required String token,
+    String? firstName,
+    String? lastName,
+    File? profilePicture,
+    String? phone,
+    String? address,
+  }) async {
+    try {
+      final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.profile}');
+      final request = http.MultipartRequest('POST', uri); // send as POST
+      request.headers.addAll(
+        ApiConfig.getHeaders(
+          token: token,
+          ContentType: true, // make sure we don’t force application/json
+        ),
       );
-      request.files.add(file);
-    }
+      request.fields['_method'] = 'PUT'; // spoof PUT for Laravel
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+      if (firstName != null) request.fields['first_name'] = firstName;
+      if (lastName != null) request.fields['last_name'] = lastName;
+      if (phone != null) request.fields['phone'] = phone;
+      if (address != null) request.fields['address'] = address;
 
-    final data = json.decode(response.body);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return ApiResponse.fromJson(data, (json) => User.fromJson(json));
-    } else {
+      if (profilePicture != null) {
+        final file = await http.MultipartFile.fromPath(
+          'profile_picture',
+          profilePicture.path,
+        );
+        request.files.add(file);
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final data = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse.fromJson(data, (json) => User.fromJson(json));
+      } else {
+        return ApiResponse(
+          status: false,
+          message:
+              'Failed to update profile: ${data['message'] ?? response.body}',
+        );
+      }
+    } catch (e) {
       return ApiResponse(
         status: false,
-        message: 'Failed to update profile: ${data['message'] ?? response.body}',
+        message: 'Network error: ${e.toString()}',
       );
     }
-  } catch (e) {
-    return ApiResponse(status: false, message: 'Network error: ${e.toString()}');
   }
-}
 
   Future<ApiResponse<void>> deleteUserProfile(String token) async {
     try {
@@ -303,34 +310,47 @@ Future<ApiResponse<User>> updateUserProfile({
       );
     }
   }
+Future<ApiResponse<Trip>> updateTrip({
+  required String token,
+  required int tripId,
+  required String title,
+  required String destination,
+  required String startDate,
+  required String endDate,
+  String? notes,
+}) async {
+  try {
+    final uri = Uri.parse(
+      '${ApiConfig.baseUrl}${ApiConfig.trips}/$tripId',
+    );
 
-  Future<ApiResponse<Trip>> updateTrip({
-    required String token,
-    required int tripId,
-    String? notes,
-  }) async {
-    try {
-      final queryParams = <String, String>{};
-      if (notes != null) queryParams['notes'] = notes;
+    final body = {
+      'title': title,
+      'destination': destination,
+      'start_date': startDate,
+      'end_date': endDate,
+    };
 
-      final uri = Uri.parse(
-        '${ApiConfig.baseUrl}${ApiConfig.trips}/$tripId',
-      ).replace(queryParameters: queryParams);
-
-      final response = await http.put(
-        uri,
-        headers: ApiConfig.getHeaders(token: token),
-      );
-
-      final data = json.decode(response.body);
-      return ApiResponse.fromJson(data, (json) => Trip.fromJson(json));
-    } catch (e) {
-      return ApiResponse<Trip>(
-        status: false,
-        message: 'Network error: ${e.toString()}',
-      );
+    if (notes != null && notes.isNotEmpty) {
+      body['notes'] = notes;
     }
+
+    final response = await http.put(
+      uri,
+      headers: ApiConfig.getHeaders(token: token),
+      body: jsonEncode(body),
+    );
+
+    final data = json.decode(response.body);
+
+    return ApiResponse.fromJson(data, (json) => Trip.fromJson(json));
+  } catch (e) {
+    return ApiResponse<Trip>(
+      status: false,
+      message: 'Network error: ${e.toString()}',
+    );
   }
+}
 
   Future<ApiResponse<void>> deleteTrip(String token, int tripId) async {
     try {
@@ -355,33 +375,34 @@ Future<ApiResponse<User>> updateUserProfile({
     required File file,
   }) async {
     try {
-      print("fileeeeee $token");
-      print("fileeeeee $tripId");
-      print("fileeeeee ${file.path}");
-
       final uri = Uri.parse(
         '${ApiConfig.baseUrl}${ApiConfig.documents(tripId)}',
       );
 
-      final response = await http.post(
-        uri,
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "file_path": file.path, // ✅ only save path
-          "file_name": file.path.split('/').last,
-          "file_type": file.path.split('.').last,
-        }),
+      // Use MultipartRequest
+      final request = http.MultipartRequest('POST', uri);
+      request.headers.addAll({
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+
+      // Attach the file
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file', // must match Laravel's $request->file('file')
+          file.path,
+          filename: file.path.split('/').last,
+        ),
       );
 
-      print('Save Path Status: ${response.statusCode}');
-      print('Save Path Response: ${response.body}');
+      // Send request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final data = json.decode(response.body);
+      print("upload document api response data: $data");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = json.decode(response.body);
         return ApiResponse.fromJson(data, (json) => Document.fromJson(json));
       } else {
         return ApiResponse<Document>(
@@ -397,44 +418,43 @@ Future<ApiResponse<User>> updateUserProfile({
     }
   }
 
- Future<ApiResponse<List<Document>>> getDocuments(
-  String token,
-  int tripId,
-) async {
-  try {
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents(tripId)}'),
-      headers: ApiConfig.getHeaders(token: token),
-    );
+  Future<ApiResponse<List<Document>>> getDocuments(
+    String token,
+    int tripId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents(tripId)}'),
+        headers: ApiConfig.getHeaders(token: token),
+      );
 
-    print("get document api response ${response.body}");
+      print("get document api response ${response.body}");
 
-    final data = json.decode(response.body);
+      final data = json.decode(response.body);
 
-    if (data['documents'] is List) {
-      final documents = (data['documents'] as List)
-          .map((json) => Document.fromJson(json))
-          .toList();
+      if (data['documents'] is List) {
+        final documents = (data['documents'] as List)
+            .map((json) => Document.fromJson(json))
+            .toList();
+
+        return ApiResponse<List<Document>>(
+          status: data['status'] ?? false,
+          message: data['message'] ?? '',
+          data: documents,
+        );
+      }
 
       return ApiResponse<List<Document>>(
-        status: data['status'] ?? false,
-        message: data['message'] ?? '',
-        data: documents,
+        status: false,
+        message: 'Invalid response format',
+      );
+    } catch (e) {
+      return ApiResponse<List<Document>>(
+        status: false,
+        message: 'Network error: ${e.toString()}',
       );
     }
-
-    return ApiResponse<List<Document>>(
-      status: false,
-      message: 'Invalid response format',
-    );
-  } catch (e) {
-    return ApiResponse<List<Document>>(
-      status: false,
-      message: 'Network error: ${e.toString()}',
-    );
   }
-}
-
 
   Future<ApiResponse<List<Trip>>> getFavourites(String token) async {
     try {
@@ -490,9 +510,7 @@ Future<ApiResponse<User>> updateUserProfile({
   Future<ApiResponse<void>> removeFavourite(String token, int tripId) async {
     try {
       final response = await http.delete(
-        Uri.parse(
-          '${ApiConfig.baseUrl}${ApiConfig.trips}/$tripId/favourite',
-        ),
+        Uri.parse('${ApiConfig.baseUrl}${ApiConfig.trips}/$tripId/favourite'),
         headers: ApiConfig.getHeaders(token: token),
       );
       final data = json.decode(response.body);
