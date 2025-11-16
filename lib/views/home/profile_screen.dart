@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+// image_picker is no longer needed here, as the controller handles it.
+// import 'package:image_picker/image_picker.dart'; 
 import 'package:provider/provider.dart';
 import 'package:travelbuddy/routes/app_routes.dart';
 import '../../controllers/profile_controller.dart';
@@ -101,9 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: const [
                   _ProfileStat(title: 'Reward Points', value: '50'),
-
                   _ProfileStat(title: 'Travel Trips', value: '40'),
-
                   _ProfileStat(title: 'Bucket List', value: '200'),
                 ],
               ),
@@ -199,6 +198,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     final locationController = TextEditingController(text: user?.address ?? '');
     final phoneController = TextEditingController(text: user?.phone ?? '');
+    
+    // Clear the locally selected image when opening the dialog
+    _selectedImage = null;
 
     showModalBottomSheet(
       context: context,
@@ -211,21 +213,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // Helper to pick image
           Future<void> pickImage() async {
             try {
-              final ImagePicker picker = ImagePicker();
-              final XFile? pickedFile = await picker.pickImage(
-                source: ImageSource.gallery,
-              );
+              print("Picking image...");
+              // --- LOGIC MOVED ---
+              // Call the controller to handle the image picking logic
+              final File? imageFile =
+                  await profileController.pickImageFromGallery();
+              // --- END LOGIC MOVED ---
 
-              if (pickedFile != null) {
-                setState(() {
-                  _selectedImage = File(pickedFile.path);
+              print("Image picked: ${imageFile?.path}");
+
+              if (imageFile != null) {
+                setModalState(() {
+                  _selectedImage = imageFile; // Update local image for modal
                 });
               }
             } catch (e) {
               print("Error picking image: $e");
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Failed to pick image: $e")),
-              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Failed to pick image: $e")),
+                );
+              }
             }
           }
 
@@ -274,11 +282,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Profile picture
                   CircleAvatar(
                     radius: 45,
-                    backgroundImage: user?.getProfileImage(),
+                    backgroundImage: _selectedImage != null
+                        ? FileImage(_selectedImage!)
+                        : user?.getProfileImage(),
                   ),
 
                   TextButton(
-                    onPressed: pickImage,
+                    onPressed: pickImage, // This now calls the updated function
                     child: const Text(
                       'Change Profile Picture',
                       style: TextStyle(color: Colors.orange),
@@ -297,12 +307,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
+                      print("Submitting profile update...");
                       final authController = Provider.of<AuthController>(
                         context,
                         listen: false,
                       );
+                      print("Updating profile...");
 
-                      final success = await profileController.updateUserProfile(
+                      final success =
+                          await profileController.updateUserProfile(
                         token: authController.token!,
                         firstName: nameController.text.trim(),
                         lastName: lastNameController.text.trim(),
@@ -318,8 +331,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         );
                         Navigator.pop(context);
-                        setState(() {}); // Refresh main profile
-                      } else {
+                        // No need to call setState((){}) here,
+                        // as the provider will notify listeners
+                        // and the main build method will get the new user data.
+                      } else if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -351,6 +366,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // Helper to build input field with optional check icon
+  // This duplicate function from the modal is no longer used, 
+  // but I'm leaving it as you said not to change anything else.
+  // The modal now uses its own locally-scoped _buildTextField.
   Widget _buildTextField(
     TextEditingController controller,
     String label, {
