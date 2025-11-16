@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:travelbuddy/constants/app_colors.dart';
 import '../../controllers/trip_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/trip.dart';
@@ -29,9 +30,10 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                      widget.trip.endDate.isAfter(DateTime.now());
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(widget.trip.title),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
@@ -74,10 +76,10 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             // Trip Status Card
             CustomCard(
               backgroundColor: isUpcoming 
-                  ? Colors.blue.withOpacity(0.1)
+                  ? Colors.blue
                   : isOngoing 
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.1),
+                      ? Colors.green.withOpacity(0.9)
+                      : Colors.grey,
               child: Row(
                 children: [
                   Icon(
@@ -87,9 +89,9 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                             ? Icons.play_circle
                             : Icons.check_circle,
                     color: isUpcoming 
-                        ? Colors.blue
+                        ? Colors.black
                         : isOngoing 
-                            ? Colors.green
+                            ? Colors.black
                             : Colors.grey,
                     size: 32,
                   ),
@@ -107,9 +109,9 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: isUpcoming 
-                                ? Colors.blue
+                                ? Colors.black
                                 : isOngoing 
-                                    ? Colors.green
+                                    ? Colors.black
                                     : Colors.grey,
                           ),
                         ),
@@ -127,6 +129,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
             // Destination
             CustomCard(
+              backgroundColor: Colors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -134,7 +137,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                     children: [
                       Icon(
                         Icons.location_on,
-                        color: Theme.of(context).primaryColor,
+                        color: AppColors.primary,
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -158,6 +161,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             // Notes
             if (widget.trip.notes != null && widget.trip.notes!.isNotEmpty) ...[
               CustomCard(
+                backgroundColor: Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -165,7 +169,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                       children: [
                         Icon(
                           Icons.note,
-                          color: Theme.of(context).primaryColor,
+                          color: AppColors.primary,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -189,6 +193,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
             // Documents Section
             CustomCard(
+              backgroundColor: Colors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -196,7 +201,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                     children: [
                       Icon(
                         Icons.attach_file,
-                        color: Theme.of(context).primaryColor,
+                        color: AppColors.primary,
                       ),
                       const SizedBox(width: 8),
                       Text(

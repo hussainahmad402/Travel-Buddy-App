@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:travelbuddy/controllers/document_controller.dart';
+import 'package:travelbuddy/views/home/home_screen.dart';
 
 import 'package:travelbuddy/views/home/trip_list_screen.dart';
 import '../../controllers/trip_controller.dart';
@@ -37,20 +38,18 @@ class _AddTripScreenState extends State<AddTripScreen> {
   }
 
   Future<void> _pickDocuments() async {
-  final result = await FilePicker.platform.pickFiles(
-    allowMultiple: true,
-    type: FileType.custom,
-    allowedExtensions: ['pdf', 'doc', 'docx'],
-  );
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+    );
 
-  if (result != null && result.files.isNotEmpty) {
-    setState(() {
-      _documents = result.paths.map((path) => File(path!)).toList();
-    });
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _documents = result.paths.map((path) => File(path!)).toList();
+      });
+    }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +78,9 @@ class _AddTripScreenState extends State<AddTripScreen> {
                     hint: 'e.g., Summer Vacation 2024',
                     controller: _titleController,
                     prefixIcon: const Icon(Icons.title),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Please enter a trip title' : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Please enter a trip title'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -90,8 +90,9 @@ class _AddTripScreenState extends State<AddTripScreen> {
                     hint: 'e.g., Paris, France',
                     controller: _destinationController,
                     prefixIcon: const Icon(Icons.location_on),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Please enter a destination' : null,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Please enter a destination'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -108,12 +109,15 @@ class _AddTripScreenState extends State<AddTripScreen> {
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                        lastDate: DateTime.now().add(
+                          const Duration(days: 365 * 2),
+                        ),
                       );
                       if (date != null) setState(() => _startDate = date);
                     },
-                    validator: (_) =>
-                        _startDate == null ? 'Please select a start date' : null,
+                    validator: (_) => _startDate == null
+                        ? 'Please select a start date'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -130,13 +134,16 @@ class _AddTripScreenState extends State<AddTripScreen> {
                         context: context,
                         initialDate: _startDate ?? DateTime.now(),
                         firstDate: _startDate ?? DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                        lastDate: DateTime.now().add(
+                          const Duration(days: 365 * 2),
+                        ),
                       );
                       if (date != null) setState(() => _endDate = date);
                     },
                     validator: (_) {
                       if (_endDate == null) return 'Please select an end date';
-                      if (_startDate != null && _endDate!.isBefore(_startDate!)) {
+                      if (_startDate != null &&
+                          _endDate!.isBefore(_startDate!)) {
                         return 'End date must be after start date';
                       }
                       return null;
@@ -184,54 +191,78 @@ class _AddTripScreenState extends State<AddTripScreen> {
 
                   // Create Trip Button
                   CustomButton(
-  text: 'Create Trip',
-  icon: Icons.add,
-  onPressed: () async {
-    if (_formKey.currentState!.validate()) {
-      final authController = Provider.of<AuthController>(context, listen: false);
-      final tripController = Provider.of<TripController>(context, listen: false);
-      final documentController = Provider.of<DocumentController>(context, listen: false);
+                    text: 'Create Trip',
+                    icon: Icons.add,
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        final authController = Provider.of<AuthController>(
+                          context,
+                          listen: false,
+                        );
+                        final tripController = Provider.of<TripController>(
+                          context,
+                          listen: false,
+                        );
+                        final documentController =
+                            Provider.of<DocumentController>(
+                              context,
+                              listen: false,
+                            );
 
-      // create trip and get Trip object
-      final newTrip = await tripController.createTrip(
-        token: authController.token!,
-        title: _titleController.text.trim(),
-        destination: _destinationController.text.trim(),
-        startDate: _startDate!,
-        endDate: _endDate!,
-        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-      );
-      print('new trip : ${tripController.trips.last.id}');
+                        // create trip and get Trip object
+                        final newTrip = await tripController.createTrip(
+                          token: authController.token!,
+                          title: _titleController.text.trim(),
+                          destination: _destinationController.text.trim(),
+                          startDate: _startDate!,
+                          endDate: _endDate!,
+                          notes: _notesController.text.trim().isEmpty
+                              ? null
+                              : _notesController.text.trim(),
+                        );
+                        print('new trip : ${tripController.trips.last.id}');
 
-      if (newTrip != null) {
-        // ✅ Upload documents using newTrip.id
-        for (final file in _documents) {
-          await documentController.uploadDocument(
-            token: authController.token!,
-            tripId: tripController.trips.last.id, // <-- backend-generated ID
-            file: file,
-          );
-          
-        }
+                        if (newTrip != null) {
+                          // ✅ Upload documents using newTrip.id
+                          for (final file in _documents) {
+                            await documentController.uploadDocument(
+                              token: authController.token!,
+                              tripId: tripController
+                                  .trips
+                                  .last
+                                  .id, // <-- backend-generated ID
+                              file: file,
+                            );
+                          }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Trip and documents created successfully!')),
-        );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Trip and documents created successfully!',
+                              ),
+                            ),
+                          );
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const TripListScreen()),
-          // (Route<dynamic> route) => false,
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(tripController.errorMessage ?? 'Failed to create trip')),
-        );
-      }
-    }
-  },
-),
-
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ),
+                            // (Route<dynamic> route) => false,
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                tripController.errorMessage ??
+                                    'Failed to create trip',
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
                 ],
               ),
             ),

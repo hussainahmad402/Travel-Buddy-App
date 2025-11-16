@@ -41,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     await prefs.setBool("isFirstTime", false);
 
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/welcome');
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override

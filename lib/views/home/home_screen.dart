@@ -98,11 +98,11 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.travel_explore),
+                icon: Icon(Icons.home_filled),
                 label: 'Trips',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.favorite),
+                icon: Icon(Icons.travel_explore),
                 label: 'Discover',
               ),
               BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),

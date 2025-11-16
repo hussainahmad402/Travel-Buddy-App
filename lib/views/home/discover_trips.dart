@@ -38,13 +38,13 @@ class DiscoverTrip extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        title: const Text('Discover Trips'),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   centerTitle: true,
+      //   automaticallyImplyLeading: false,
+      //   title: const Text('Discover Trips'),
+      //   backgroundColor: Colors.white,
+      //   elevation: 0,
+      // ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -52,7 +52,11 @@ class DiscoverTrip extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ✅ Top Bar
+            SizedBox(
+              height: 40,
+            ),
             Row(
+
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
